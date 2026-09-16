@@ -1,6 +1,6 @@
 {
   "name": "kontent-sharepoint-filepicker-alternative",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Kontent.ai custom element for picking files from specific, admin-approved SharePoint sites via Microsoft Graph Sites.Selected (no AllSites.Read / MyFiles.Read / Sites.Read.All / Files.Read.All)",
   "private": true,
   "license": "MIT",

@@ -44,6 +44,11 @@
     let msalReady = false;
     let resizeObserver = null;
 
+    // Normalized in-memory copy of the last rendered value (kept in sync by
+    // renderFiles), so refreshStoredLinks() always has something to re-check
+    // against Graph without re-parsing element.value.
+    let storedFiles = [];
+
     // Per-site Graph state, keyed by the site's config index. Populated lazily
     // the first time each site is opened, so opening the browser never fetches
     // more than the site currently in view.
@@ -223,6 +228,7 @@
 
     function renderFiles(fileData) {
         const files = fileData ? (Array.isArray(fileData) ? fileData : [fileData]) : [];
+        storedFiles = files;
 
         dom.fileDisplay.innerHTML = "";
 
@@ -280,6 +286,63 @@
     function saveValue(fileData) {
         CustomElement.setValue(fileData ? JSON.stringify(fileData) : null);
         renderFiles(fileData);
+    }
+
+    // --- self-healing links --------------------------------------------------
+    // The stored value's `url` is a snapshot from whenever the file was picked.
+    // Renaming or moving the file in SharePoint changes its webUrl, so that
+    // snapshot goes stale (404) even though the file itself is untouched. The
+    // stored `id` + `driveId` are stable identifiers Graph can always resolve
+    // back to the file's *current* location, so we use them to re-fetch fresh
+    // metadata and, if anything changed, re-save the corrected value.
+
+    async function resolveLiveMetadata(file) {
+        if (!file || !file.driveId || !file.id) return file; // nothing to resolve against
+        try {
+            const item = await graphGet(
+                `/drives/${encodeURIComponent(file.driveId)}/items/${encodeURIComponent(file.id)}` +
+                "?$select=id,name,webUrl,lastModifiedDateTime,lastModifiedBy"
+            );
+            return {
+                ...file,
+                name: item.name || file.name,
+                url: item.webUrl || file.url,
+                author: item.lastModifiedBy?.user?.displayName || file.author,
+                lastModified: item.lastModifiedDateTime || file.lastModified,
+            };
+        } catch (e) {
+            // File may have been deleted, or this account may no longer have
+            // access - keep the last-known-good stored value rather than
+            // erroring the whole element out over a background refresh.
+            setStatus(`Could not refresh link for "${file.name || file.id}": ${e.message}`);
+            return file;
+        }
+    }
+
+    // silent: true => never prompt for sign-in, only use an already-cached
+    // MSAL session (used opportunistically on load). Called without options
+    // once the editor has just interactively signed in (opening the picker),
+    // where a prompt is already expected and acceptable.
+    async function refreshStoredLinks(options) {
+        const silent = !!(options && options.silent);
+        if (!storedFiles.length || !msalReady) return;
+
+        const account = msalInstance.getAllAccounts()[0];
+        if (!account) return; // never prompt from here - best effort only
+
+        if (silent) {
+            try {
+                await msalInstance.acquireTokenSilent({ scopes: graphScopes(), account });
+            } catch (e) {
+                return; // no usable cached session; don't interrupt with a popup
+            }
+        }
+
+        const refreshed = await Promise.all(storedFiles.map(resolveLiveMetadata));
+        if (JSON.stringify(refreshed) !== JSON.stringify(storedFiles)) {
+            setStatus(`Refreshed ${refreshed.length} file link(s) from SharePoint.`);
+            saveValue(refreshed);
+        }
     }
 
     function updateHeight() {
@@ -500,9 +563,10 @@
     }
 
     dom.siteSelector.addEventListener("change", () => {
+        // Selections are keyed by Graph item id, which is unique per drive, so
+        // switching sites does not risk collisions - keep whatever the editor
+        // already checked in other sites instead of silently dropping it.
         const site = config.sites.find((s) => s.key === dom.siteSelector.value);
-        browser.selected.clear();
-        updateSelectionUi();
         if (site) openSite(site);
     });
 
@@ -556,6 +620,7 @@
 
         try {
             await ensureAuthenticated();
+            await refreshStoredLinks(); // heal any renamed/moved links now that we have a token
             await openBrowser();
             dom.pickBtn.textContent = "Browsing...";
         } catch (error) {
@@ -606,7 +671,10 @@
         }
 
         applyDisabledState(element.disabled);
-        initMsal();
+        // Best-effort, silent link healing: only runs if a cached MSAL session
+        // already exists (e.g. the editor signed in earlier in this browser
+        // tab) - never prompts on its own.
+        initMsal().then(() => refreshStoredLinks({ silent: true }));
     });
 
     if (typeof CustomElement.onDisabledChanged === "function") {

@@ -139,6 +139,11 @@ from section 2**, adding a site here without also granting it access in Entra wi
 editor an access-denied message when they try to open it, never silently fall back to browsing
 somewhere else.
 
+With `selectionMode: "multiple"`, files picked in one site stay selected when the editor switches
+the site dropdown to browse another one, so a single picking session can gather files from
+several approved sites at once. Switching sites never discards a selection; only closing the
+browser (Cancel) or confirming (Add selected) does.
+
 The element validates this configuration on load and shows an inline error if it's missing or
 malformed, instead of failing silently.
 
@@ -159,6 +164,28 @@ working unchanged:
   }
 ]
 ```
+
+`id` and `driveId` aren't just for reference, the element actively uses them (see next section).
+
+## Link resilience (renamed/moved files)
+
+`url` is a snapshot of the file's SharePoint web URL at the moment it was picked. Renaming a file
+or moving it to another folder changes that URL, so a stale stored link would otherwise start
+404'ing even though the file itself is untouched.
+
+`id` and `driveId` are stable Graph identifiers that keep resolving to the file regardless of
+renames or moves within the same site. The element uses them to silently re-fetch the file's
+current name, URL, author and last-modified date from Graph, and re-saves the corrected value
+whenever it gets the chance:
+
+- **Opportunistically on load**, if the editor already has a cached sign-in in that browser tab
+  (no popup, best-effort, silently skipped if there's no cached session).
+- **Every time the picker is opened** (`Select SharePoint Files` / `Change Files`), since opening
+  it already requires a live, signed-in Graph token.
+
+If a file was deleted or the account can no longer reach it, the last-known-good stored value is
+kept as-is rather than the element erroring out; check the browser console (or turn on `debug`)
+for details in that case.
 
 ## Limitations
 
