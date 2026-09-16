@@ -1,0 +1,254 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #4b5258;
+    font-size: 14px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn {
+    background-color: #175bce;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    width: fit-content;
+    transition: background-color 0.2s;
+}
+
+.btn:hover:not(:disabled) { background-color: #114399; }
+.btn:disabled { background-color: #b0c4df; cursor: not-allowed; }
+
+.btn-secondary { background-color: #e0e2e5; color: #4b5258; }
+.btn-secondary:hover:not(:disabled) { background-color: #c9ccd1; }
+
+.btn-danger { background-color: #d11d1d; }
+.btn-danger:hover:not(:disabled) { background-color: #a11616; }
+
+.controls-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-card {
+    background-color: #f7f8f9;
+    border: 1px solid #e0e2e5;
+    padding: 8px 16px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.file-item {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e2e5;
+    width: 100%;
+}
+
+.file-item:last-child { border-bottom: none; }
+
+.file-link {
+    color: #175bce;
+    text-decoration: none;
+    font-weight: 600;
+    word-break: break-all;
+    font-size: 14px;
+}
+
+.file-link:hover { text-decoration: underline; }
+
+.file-meta {
+    font-size: 12px;
+    color: #737c85;
+    margin-top: 4px;
+}
+
+.banner {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.banner-error {
+    background-color: #fdecea;
+    border: 1px solid #f3b4ae;
+    color: #9c2b25;
+}
+
+.banner-error span {
+    white-space: pre-line;
+}
+
+.banner-confirm {
+    background-color: #fff6e5;
+    border: 1px solid #f0d68a;
+    color: #7a5c00;
+    align-items: center;
+}
+
+.banner-dismiss {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+}
+
+.banner-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.debug-status {
+    font-size: 11px;
+    color: #888;
+}
+
+.hidden { display: none !important; }
+
+/* --- inline file browser panel (replaces the File Picker v8 popup) --- */
+
+.browser-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: #ffffff;
+    border: 1px solid #d3d6d9;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.site-selector-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.site-selector-label {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+#site-selector {
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid #c9ccd1;
+    font-size: 13px;
+    max-width: 320px;
+}
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #4b5258;
+}
+
+.breadcrumb-item {
+    background: none;
+    border: none;
+    color: #175bce;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.breadcrumb-item:hover { text-decoration: underline; }
+
+.breadcrumb-item[disabled] {
+    color: #4b5258;
+    cursor: default;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.breadcrumb-sep {
+    color: #a3a9ae;
+}
+
+.browser-loading, .browser-error {
+    font-size: 13px;
+    padding: 8px 0;
+}
+
+.browser-error { color: #9c2b25; }
+
+.browser-list {
+    max-height: 280px;
+    overflow-y: auto;
+    border: 1px solid #e0e2e5;
+    border-radius: 4px;
+}
+
+.browser-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-bottom: 1px solid #eef0f2;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.browser-row:last-child { border-bottom: none; }
+
+.browser-row:hover { background-color: #f7f8f9; }
+
+.browser-row.is-folder { font-weight: 600; }
+
+.browser-row-icon {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.browser-row-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.browser-row-empty {
+    padding: 16px 10px;
+    color: #737c85;
+    font-size: 13px;
+    text-align: center;
+}
+
+.browser-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.browser-selection-count {
+    font-size: 12px;
+    color: #737c85;
+}

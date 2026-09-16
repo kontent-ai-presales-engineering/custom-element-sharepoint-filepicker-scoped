@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://app.kontent.ai https://alcdn.msauth.net; style-src 'self'; connect-src 'self' https://graph.microsoft.com https://login.microsoftonline.com; frame-src https://login.microsoftonline.com; img-src 'self' data:; base-uri 'none'; form-action 'none';">
+    <title>SharePoint File Picker (Sites.Selected)</title>
+    <link rel="stylesheet" href="css/app.css">
+
+    <script src="https://app.kontent.ai/js-api/custom-element/v1/custom-element.js"></script>
+    <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+</head>
+<body>
+
+    <div id="root-container" class="container">
+        <div id="error-banner" class="banner banner-error hidden" role="alert">
+            <span id="error-text"></span>
+            <button id="error-dismiss" class="banner-dismiss" type="button" aria-label="Dismiss">&times;</button>
+        </div>
+
+        <div class="controls-row">
+            <button id="btn-pick" class="btn" type="button">Select SharePoint Files</button>
+            <button id="btn-clear" class="btn btn-danger hidden" type="button">Remove</button>
+        </div>
+
+        <div id="confirm-clear" class="banner banner-confirm hidden">
+            <span>Remove all selected files?</span>
+            <span class="banner-actions">
+                <button id="confirm-clear-yes" class="btn btn-danger" type="button">Remove</button>
+                <button id="confirm-clear-no" class="btn btn-secondary" type="button">Cancel</button>
+            </span>
+        </div>
+
+        <div id="file-display" class="file-card hidden"></div>
+
+        <!-- Inline file browser, replaces the Microsoft File Picker v8 popup.
+             Rendered inside the element's own iframe, no second popup window. -->
+        <div id="browser-panel" class="browser-panel hidden">
+            <div id="site-selector-row" class="site-selector-row hidden">
+                <label for="site-selector" class="site-selector-label">Site:</label>
+                <select id="site-selector"></select>
+            </div>
+
+            <div id="breadcrumb" class="breadcrumb"></div>
+
+            <div id="browser-loading" class="browser-loading hidden">Loading...</div>
+            <div id="browser-error" class="browser-error hidden"></div>
+
+            <div id="browser-list" class="browser-list"></div>
+
+            <div class="browser-footer">
+                <span id="browser-selection-count" class="browser-selection-count"></span>
+                <span class="banner-actions">
+                    <button id="browser-confirm" class="btn" type="button" disabled>Add selected</button>
+                    <button id="browser-cancel" class="btn btn-secondary" type="button">Cancel</button>
+                </span>
+            </div>
+        </div>
+
+        <div id="debug-status" class="debug-status hidden"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
